@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Simple Attendance System</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; max-width: 600px; }
+  label, input, datalist, button { display: block; margin: 10px 0; width: 100%; box-sizing: border-box; }
+  input, datalist, button { padding: 8px; font-size: 1em; }
+  button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #45a049;
+  }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+  th { background: #eee; }
+</style>
+</head>
+<body>
+
+<h2>Simple Attendance System</h2>
+
+<form id="attendanceForm">
+  <label for="studentName">Student Name:</label>
+  <input type="text" id="studentName" required />
+
+  <label for="courseInput">Enter or Select Course:</label>
+  <input list="courses" id="courseInput" name="courseInput" required />
+  <datalist id="courses">
+    <option value="Mathematics">
+    <option value="Computer Science">
+    <option value="Physics">
+    <option value="Chemistry">
+  </datalist>
+
+  <button type="submit">Mark Attendance</button>
+</form>
+
+<h3>Attendance Records</h3>
+<table id="attendanceTable">
+  <thead>
+    <tr><th>Student Name</th><th>Course</th><th>Date & Time</th></tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+const form = document.getElementById('attendanceForm');
+const tableBody = document.querySelector('#attendanceTable tbody');
+const courseInput = document.getElementById('courseInput');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('studentName').value.trim();
+  const course = courseInput.value.trim();
+  if (!name || !course) return alert('Please fill all fields.');
+
+  const url = "YOUR_WEB_APP_URL_HERE"; // Replace with your Apps Script Web App URL
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({ name, course }),
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const result = await response.json();
+    if (result.result === "success") {
+      alert('Attendance marked successfully!');
+      addToTable({ name, course, date: new Date().toISOString() });
+      form.reset();
+    } else {
+      alert('Failed to save attendance.');
+    }
+  } catch (error) {
+    alert('Error connecting to server.');
+    console.error(error);
+  }
+});
+
+function addToTable(record) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${record.name}</td>
+    <td>${record.course}</td>
+    <td>${new Date(record.date).toLocaleString()}</td>
+  `;
+  tableBody.appendChild(tr);
+}
+</script>
+
+</body>
+</html>
